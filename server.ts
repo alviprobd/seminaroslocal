@@ -147,9 +147,10 @@ async function startServer() {
       }
 
       const transportConfig: any = {
-        pool: true,
-        maxConnections: 5,
-        maxMessages: 100,
+        pool: false, // Disabled for debugging
+        logger: true,
+        debug: true,
+        connectionTimeout: 10000, // 10 seconds
         auth: {
           user: email,
           pass: pass,
@@ -157,10 +158,12 @@ async function startServer() {
       };
 
       if (smtpHost) {
+        console.log(`Email: Attempting connection to ${smtpHost}:${smtpPort} (secure: ${smtpSecure})`);
         transportConfig.host = smtpHost;
         transportConfig.port = smtpPort;
         transportConfig.secure = smtpSecure;
       } else {
+        console.log(`Email: Attempting connection via Gmail service`);
         transportConfig.service = "gmail";
       }
 
