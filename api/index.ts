@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import nodemailer from "nodemailer";
-import * as admin from "firebase-admin";
+import { credential } from "firebase-admin";
 import { initializeApp, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
@@ -18,7 +18,7 @@ if (!getApps().length) {
     try {
       const serviceAccount = JSON.parse(serviceAccountVar);
       initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+        credential: credential.cert(serviceAccount),
         projectId: firebaseConfig.projectId,
       });
     } catch (parseError) {
@@ -29,7 +29,7 @@ if (!getApps().length) {
   }
 }
 
-const firestore = firebaseConfig.firestoreDatabaseId 
+const firestore = firebaseConfig.firestoreDatabaseId
   ? getFirestore(getApps()[0], firebaseConfig.firestoreDatabaseId)
   : getFirestore(getApps()[0]);
 
@@ -91,20 +91,20 @@ app.post("/api/send-test-email", authenticate, async (req, res) => {
 });
 
 app.post("/api/send-certificate", authenticate, async (req, res) => {
-    const { to, subject, body, attachmentBase64, fileName, gmailEmail, gmailAppPassword } = req.body;
-    try {
-        const transporter = getTransporter(gmailEmail, gmailAppPassword);
-        await transporter.sendMail({
-            from: gmailEmail,
-            to,
-            subject,
-            text: body,
-            attachments: attachmentBase64 ? [{ filename: fileName, content: attachmentBase64.split("base64,")[1], encoding: 'base64' }] : []
-        });
-        res.json({ success: true });
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
+  const { to, subject, body, attachmentBase64, fileName, gmailEmail, gmailAppPassword } = req.body;
+  try {
+    const transporter = getTransporter(gmailEmail, gmailAppPassword);
+    await transporter.sendMail({
+      from: gmailEmail,
+      to,
+      subject,
+      text: body,
+      attachments: attachmentBase64 ? [{ filename: fileName, content: attachmentBase64.split("base64,")[1], encoding: 'base64' }] : []
+    });
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // For Vercel, we export the app

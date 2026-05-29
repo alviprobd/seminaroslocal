@@ -3,7 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
 import nodemailer from "nodemailer";
-import * as admin from "firebase-admin";
+import { credential } from "firebase-admin";
 import { initializeApp, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import firebaseConfig from "./firebase-applet-config.json";
@@ -27,7 +27,7 @@ try {
       try {
         const serviceAccount = JSON.parse(serviceAccountVar);
         initializeApp({
-          credential: admin.credential.cert(serviceAccount),
+          credential: credential.cert(serviceAccount),
           projectId: firebaseConfig.projectId,
         });
         console.log("Firebase Admin initialized with Service Account from environment variable.");
