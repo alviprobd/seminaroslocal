@@ -131,9 +131,20 @@ async function startServer() {
         return mailTransporter;
       }
 
-      const smtpHost = options?.host || process.env.SMTP_HOST; // e.g., smtp.gmail.com or mail.yourdomain.com
+      const smtpHost = options?.host || process.env.SMTP_HOST;
       const smtpPort = options?.port || parseInt(process.env.SMTP_PORT || "465");
-      const smtpSecure = options?.secure !== undefined ? options.secure : (process.env.SMTP_SECURE !== "false"); // Default to true (SSL/TLS)
+
+      // Auto-detect secure setting based on port if not explicitly provided
+      let smtpSecure = options?.secure;
+      if (smtpSecure === undefined) {
+        if (process.env.SMTP_SECURE !== undefined) {
+          smtpSecure = process.env.SMTP_SECURE !== "false";
+        } else {
+          // Port 465 is typically for Implicit SSL (secure: true)
+          // Port 587/25 use STARTTLS (secure: false)
+          smtpSecure = smtpPort === 465;
+        }
+      }
 
       const transportConfig: any = {
         pool: true,
